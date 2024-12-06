@@ -110,7 +110,7 @@ const uploadMetadata = async () => {
     await uploadCollectionMetadata();
 
     const itemUris = [];
-    const num_items = 10;
+    const num_items = 1000;
 
     // Iterate over 50 items (0 to 49)
     for (let i = 0; i < num_items; i++) {

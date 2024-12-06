@@ -50,7 +50,7 @@ umi.use(signerIdentity(signer)).use(mplCore()).use(mplCandyMachine());
         candyMachine,
         collection: collection.publicKey,
         collectionUpdateAuthority: umi.identity,
-        itemsAvailable: 10, // change this to the number of NFTs we want to sell
+        itemsAvailable: 1000, // change this to the number of NFTs we want to sell
         configLineSettings: some({
             prefixName: 'Certificate #',
             nameLength: 7,

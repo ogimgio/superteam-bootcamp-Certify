@@ -196,7 +196,7 @@ async function prepareMintTransaction(user: PublicKey) {
   const umi = createUmi("https://api.devnet.solana.com", "confirmed");
   umi.use(signerIdentity(createNoopSigner(publicKey(user)))).use(mplCandyMachine());
 
-  const candyMachine = publicKey("pNo5tq9gW5maP7novAEyuMz9GUwxyV8hwHsuwvGvig9");
+  const candyMachine = publicKey("GybyK2QsyR8xmadmaoFq64M6jLS76oMTK2waJgNfkLUw");
   const candyMachineData = await fetchCandyMachine(umi, candyMachine);
 
   /// Generate the Asset KeyPair
