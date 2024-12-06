@@ -110,3 +110,15 @@ This project is a comprehensive Solana-based platform that combines NFT minting 
 - Enhanced feedback analytics (leaderboard)
 - Additional NFT minting rules
 - Improved error handling
+
+## Challenges
+
+- First Exposure to Web3: Team's initial venture into Solana ecosystem, blockchain technology, and new development frameworks
+- Language and Framework Challenges:
+  - Learned Rust, with its unique safety and performance features
+  - Adapted to Anchor's blockchain program abstraction
+  - Blinks
+- Learning Under Pressure:
+  - Rapid knowledge acquisition within a limited timeframe
+  - Navigated the steep learning curve from theory to practical application
+  - Developed skills in debugging and testing on a live blockchain

@@ -1,32 +1,33 @@
+import { Program } from '@coral-xyz/anchor';
 import { fetchCandyMachine, mintV1, mplCandyMachine } from '@metaplex-foundation/mpl-core-candy-machine';
-import { createNoopSigner, createSignerFromKeypair, generateSigner, publicKey, signerIdentity, some } from '@metaplex-foundation/umi';
-import { PublicKey } from '@solana/web3.js';
-
+import { createNoopSigner, generateSigner, publicKey, signerIdentity, some } from '@metaplex-foundation/umi';
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
 import {
+  Action,
   ActionGetResponse,
   ActionPostRequest,
-  ActionPostResponse,
+  ActionPostResponse
 } from "@solana/actions";
-import {
-  Connection
-} from "@solana/web3.js";
+import { Connection, PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { Buffer } from "node:buffer";
-import wallet from "../wallet.json";
+import { FeedbackProgram } from '../solana_feedback_program/target/types/feedback_program';
+
+const IDL = require("../solana_feedback_program/target/idl/feedback_program.json");
 
 if (globalThis.Buffer === undefined) {
   globalThis.Buffer = Buffer;
 }
 
+const LOGO = "https://devnet.irys.xyz/GMQqjjNJT6p764sfKypeNyuScsFLs4WY7FsGueSoeUe9";
+
 // you should use a private RPC here
 // use devnet
-const connection = new Connection("https://api.devnet.solana.com");
 
 const app = new Hono();
 
-// see https://solana.com/docs/advanced/actions#options-response
+// CORS configuration
 app.use(
   cors({
     origin: "*",
@@ -35,22 +36,25 @@ app.use(
   })
 );
 
+// Initial GET route for feedback and mint
 app.get("/", (c) => {
   const response: ActionGetResponse = {
-    title: "Mint your certificate for SuperTeam Bootcamp",
-    description: "Blink to mint NFT certificate ",
-    icon: "https://devnet.irys.xyz/GMQqjjNJT6p764sfKypeNyuScsFLs4WY7FsGueSoeUe9",
-    label: "Mint NFT",
-    "links": {
-      "actions": [
+    type: 'action',
+    icon: LOGO,
+    title: "Superteam Bootcamp Feedback and NFT Mint",
+    label: "Provide Feedback and Mint NFT",
+    description: "Submit your feedback and receive an NFT certificate",
+    links: {
+      actions: [
         {
-          "label": "Mint NFT", // button text
-          "href": "/?stars={stars}&feedback={feedback}",
-          "parameters": [
+          type: 'post',
+          label: 'Start Feedback',
+          href: "/?stars={stars}&feedback={feedback}",
+          parameters: [
             {
               type: "select",
-              name: "stars", // parameter name in the `href` above
-              label: "Rate the event", // placeholder of the text input
+              name: "stars",
+              label: "Rate the event",
               required: true,
               options: [
                 { label: "1", value: "1" },
@@ -75,61 +79,121 @@ app.get("/", (c) => {
   return c.json(response);
 });
 
+// First POST route - Submit Feedback
 app.post("/", async (c) => {
   const req = await c.req.json<ActionPostRequest>();
-  console.log(c.req.query("stars"));
-  console.log(c.req.query("feedback"));
+  const stars = parseInt(c.req.query("stars") || "5");
+  const feedbackText = c.req.query("feedback") || "Great experience!";
 
-  const transaction = await prepareTransaction(new PublicKey(req.account));
-
-  console.log('Transaction', transaction);
-
+  const transaction = await prepareFeedbackTransaction(
+    new PublicKey(req.account),
+    stars,
+    feedbackText
+  );
 
   const response: ActionPostResponse = {
-    type: 'transaction',
     transaction: Buffer.from(transaction).toString("base64"),
+    links: {
+      next: {
+        type: 'post',
+        href: `/mint`
+      }
+    }
   };
 
   return c.json(response);
 });
 
-async function prepareTransaction(user: PublicKey) {
+app.post('/mint', async (c) => {
+  const req = await c.req.json<ActionPostRequest>();
 
-  /* / Configure provider
-  const provider = anchor.AnchorProvider.env();
-  anchor.setProvider(provider);
+  // This route will return an Action object that describes the next step
+  const response: Action = {
+    type: 'action',
+    icon: LOGO,
+    title: "Mint NFT Certificate",
+    label: "Mint NFT",
+    description: "Mint your Superteam Bootcamp NFT certificate",
+    links: {
+      actions: [
+        {
+          type: 'transaction',
+          label: 'Mint NFT Certificate',
+          href: `/mint/transaction`  // Points to the actual transaction
+        }
+      ]
+    }
+  };
 
-  // Load the deployed program
-  const program = new anchor.Program<FeedbackProgram>(
-    require("../superteam-bootcamp/target/idl/feedback_program.json"),
-    provider,
-  );
+  return c.json(response);
+});
+app.post('/mint/transaction', async (c) => {
+  const req = await c.req.json<ActionPostRequest>();
 
-  // Generate feedback PDA (Program Derived Address)
+  const transaction = await prepareMintTransaction(new PublicKey(req.account));
+
+  const response: ActionPostResponse = {
+    type: 'transaction',
+    transaction: Buffer.from(transaction).toString("base64"),
+    links: {
+      next: {
+        type: 'completed',
+        action: {
+          type: 'completed',
+          icon: LOGO,
+          title: "NFT Certificate Minted",
+          label: "Completed",
+          description: "You have successfully submitted feedback and minted your NFT certificate!"
+        }
+      }
+    }
+  };
+
+  return c.json(response);
+});
+
+async function prepareFeedbackTransaction(
+  user: PublicKey,
+  stars: number,
+  feedbackText: string
+) {
+  const connection = new Connection("https://api.devnet.solana.com", "confirmed");
+  //const connection = new Connection("http://127.0.0.1:8899", "confirmed");
+  const program: Program<FeedbackProgram> = new Program(IDL, { connection });
+
+  // Generate feedback PDA
   const [feedbackPDA] = PublicKey.findProgramAddressSync(
     [Buffer.from("feedback"), user.toBuffer()],
     program.programId
   );
 
-  // Submit feedback before minting NFT
-  const txFeedback = await program.methods
-    .submitFeedback(5, "Great experience!")
+  // Prepare feedback transaction
+  const instruction = await program.methods
+    .submitFeedback(stars, feedbackText)
     .accounts({
       feedback: feedbackPDA,
       user: user,
       systemProgram: SystemProgram.programId,
     })
-    .rpc();
+    .instruction();
 
-  console.log("Feedback submitted! Tx:", txFeedback);
-  return */
+  const blockhash = await connection.getLatestBlockhash();
 
+  const transaction = new Transaction({
+    feePayer: user,
+    blockhash: blockhash.blockhash,
+    lastValidBlockHeight: blockhash.lastValidBlockHeight,
+  }).add(instruction);
 
+  // Serialize and return the transaction for signing
+  return transaction.serialize({
+    requireAllSignatures: false,
+    verifySignatures: false,
+  });
+}
 
+async function prepareMintTransaction(user: PublicKey) {
   const umi = createUmi("https://api.devnet.solana.com", "confirmed");
-
-  let keypair = umi.eddsa.createKeypairFromSecretKey(new Uint8Array(wallet));
-  const adminSigner = createSignerFromKeypair(umi, keypair);
   umi.use(signerIdentity(createNoopSigner(publicKey(user)))).use(mplCandyMachine());
 
   const candyMachine = publicKey("pNo5tq9gW5maP7novAEyuMz9GUwxyV8hwHsuwvGvig9");
@@ -154,29 +218,6 @@ async function prepareTransaction(user: PublicKey) {
   console.log(mintIx);
 
   return umi.transactions.serialize(mintIx);
-
-
-
-  /* // Generate the Asset KeyPair
-  const asset = generateSigner(umi);
-  console.log("This is your asset address", asset.publicKey.toString());
-
-   // Pass and Fetch the Collection
-  const collection = await fetchCollection(umi, publicKey("83HKBCJFGfL6NDGbRDhgaVVRMPMjut9KGmjMtGfyuR5k"))
-  console.log(collection);
-
-  Generate the Asset
-  const tx = await create(umi, {
-    asset,
-    collection,
-    name: "My Asset",
-    uri: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFSEpBr5S0U6q_kBgiFm1flKIiFxhmqGmfAw&s",
-    authority: adminSigner,
-  }).buildAndSign(umi);
-
-  return umi.transactions.serialize(tx); */
-
-
 }
 
 export default app;

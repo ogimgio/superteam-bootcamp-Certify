@@ -1,6 +1,6 @@
 {
-  "name": "Numbers",
-  "symbol": "NUMBERS",
+  "name": "Certificate",
+  "symbol": "CERT",
   "image": "collection.png",
   "properties": {
     "files": [
@@ -12,12 +12,12 @@
     "category": "image",
     "creators": [
       {
-        "address": "4xbJp9sjeTEhheUDg8M1nJUomZcGmFZsjt9Gg3RQZAWp",
+        "address": "58hscQKoL5vJ8Vt4k4N81TC8HqsZSR7wBSL2agRYXwD3",
         "share": 100
       }
     ]
   },
   "description": "A Set of test NFT's for the Solana Blockchain",
   "seller_fee_basis_points": 500,
-    "attributes": []
+  "attributes": []
 }

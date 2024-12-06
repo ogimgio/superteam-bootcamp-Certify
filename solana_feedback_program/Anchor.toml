@@ -5,7 +5,7 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-superteam_bootcamp = "AH23xrNu1n679Wy4FjCFEaxkWeMDWvE5GQWS2ih16Ure"
+superteam_bootcamp = "2w9CcfuCJAY3ZmA2SG5WeN2V6T3zHHZppwoxPqcEp4G3"
 
 [registry]
 url = "https://api.apr.dev"

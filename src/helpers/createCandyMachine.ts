@@ -26,7 +26,7 @@ umi.use(signerIdentity(signer)).use(mplCore()).use(mplCandyMachine());
         await umi.rpc.airdrop(umi.identity.publicKey, sol(2))
     }
 
-    const metadataUriCollection = "3tDPxNYAZBEoP5Qbvcm3bmZckrZ6FbxPDb95MftgA4GD";
+    const metadataUriCollection = "6ABU3eyi9m7dZcNXqY1jxAHruXrN6EkQGXHtbuarE5G6";
     /// Generate the Collection KeyPair
     const collection = generateSigner(umi)
     console.log("\nCollection Address: ", collection.publicKey.toString())
@@ -50,7 +50,7 @@ umi.use(signerIdentity(signer)).use(mplCore()).use(mplCandyMachine());
         candyMachine,
         collection: collection.publicKey,
         collectionUpdateAuthority: umi.identity,
-        itemsAvailable: 2, // change this to the number of NFTs we want to sell
+        itemsAvailable: 10, // change this to the number of NFTs we want to sell
         configLineSettings: some({
             prefixName: 'Certificate #',
             nameLength: 7,

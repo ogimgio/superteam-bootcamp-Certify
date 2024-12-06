@@ -61,10 +61,10 @@ const uploadItem = async (index: number) => {
 // Step 7: Upload the collection metadata (collection.png and collection.json)
 const uploadCollectionMetadata = async () => {
     // Step 2: Read the collection image file
-    const collectionImageFile = fs.readFileSync(path.join(__dirname, "../../assets/collection.png"));
+    const collectionImageFile = fs.readFileSync(path.join(__dirname, "../../assets/blink.png"));
 
     // Step 3: Convert the collection image to a Umi-compatible format
-    const umiCollectionImageFile = createGenericFile(collectionImageFile, "collection.png", {
+    const umiCollectionImageFile = createGenericFile(collectionImageFile, "blink.png", {
         tags: [{ name: "Content-Type", value: "image/png" }],
     });
 
@@ -103,11 +103,14 @@ const uploadMetadata = async () => {
     // Check balance before starting
     console.log(`Balance of ${umi.identity.publicKey}: ${(await umi.rpc.getBalance(umi.identity.publicKey)).basisPoints}`);
 
+    // uncomment this to upload blink
+    //uploadImageBlink();  
+
     // Upload collection metadata first
     await uploadCollectionMetadata();
 
     const itemUris = [];
-    const num_items = 2;
+    const num_items = 10;
 
     // Iterate over 50 items (0 to 49)
     for (let i = 0; i < num_items; i++) {
@@ -132,7 +135,5 @@ const uploadImageBlink = async () => {
     console.log(encodedUri)
     return
 }
-
-uploadImageBlink();
-//uploadMetadata();
+uploadMetadata();
 
