@@ -58,11 +58,11 @@ const createNft = async () => {
     });
     console.log(mintCounter)
 
-    // if counter >= 1 return
+    /* // if counter >= 1 return
     if (mintCounter !== null && mintCounter.count >= 1) {
         console.log("Mint Counter is greater than 1")
         return
-    }
+    } */
 
     /// Generate the Asset KeyPair
     const asset = generateSigner(umi)

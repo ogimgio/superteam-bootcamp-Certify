@@ -1,5 +1,5 @@
-import { create, fetchCollection } from '@metaplex-foundation/mpl-core';
-import { createNoopSigner, createSignerFromKeypair, generateSigner, publicKey, signerIdentity } from '@metaplex-foundation/umi';
+import { fetchCandyMachine, mintV1, mplCandyMachine } from '@metaplex-foundation/mpl-core-candy-machine';
+import { createNoopSigner, createSignerFromKeypair, generateSigner, publicKey, signerIdentity, some } from '@metaplex-foundation/umi';
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
 import {
   ActionGetResponse,
@@ -50,6 +50,8 @@ app.post("/", async (c) => {
 
   const transaction = await prepareTransaction(new PublicKey(req.account));
 
+  console.log('Transaction', transaction);
+
   const response: ActionPostResponse = {
     type: 'transaction',
     transaction: Buffer.from(transaction).toString("base64"),
@@ -63,17 +65,42 @@ async function prepareTransaction(user: PublicKey) {
 
   let keypair = umi.eddsa.createKeypairFromSecretKey(new Uint8Array(wallet));
   const adminSigner = createSignerFromKeypair(umi, keypair);
-  umi.use(signerIdentity(createNoopSigner(publicKey(user))));
+  umi.use(signerIdentity(createNoopSigner(publicKey(user)))).use(mplCandyMachine());
 
-  // Generate the Asset KeyPair
+  const candyMachine = publicKey("3g8Ghh9B4ZfM3THpGFoPcCtsvkWpW41JNxbJoDFpc3eh");
+  const candyMachineData = await fetchCandyMachine(umi, candyMachine);
+
+  /// Generate the Asset KeyPair
+  const asset = generateSigner(umi)
+  console.log("This is your asset address", asset.publicKey.toString());
+
+  /// Mint the Asset
+  const mintIx = await mintV1(umi, {
+    candyMachine,
+    collection: candyMachineData.collectionMint,
+    asset,
+    owner: publicKey(user),
+    mintArgs: {
+      solPayment: some({ destination: publicKey("5Rsa6WxedsNLzRKp3G7CvNbL3ohCjJ8gymaN157CzNdP") }),
+      mintLimit: some({ id: 1 })
+    },
+  }).buildAndSign(umi);
+
+  console.log(mintIx);
+
+  return umi.transactions.serialize(mintIx);
+
+
+
+  /* // Generate the Asset KeyPair
   const asset = generateSigner(umi);
   console.log("This is your asset address", asset.publicKey.toString());
 
-  // Pass and Fetch the Collection
+   // Pass and Fetch the Collection
   const collection = await fetchCollection(umi, publicKey("83HKBCJFGfL6NDGbRDhgaVVRMPMjut9KGmjMtGfyuR5k"))
   console.log(collection);
 
-  // Generate the Asset
+  Generate the Asset
   const tx = await create(umi, {
     asset,
     collection,
@@ -82,30 +109,9 @@ async function prepareTransaction(user: PublicKey) {
     authority: adminSigner,
   }).buildAndSign(umi);
 
-  return umi.transactions.serialize(tx);
-
-  /* // Deserialize the Signature from the Transaction
-  console.log("Asset Created: https://solana.fm/tx/" + base58.deserialize(tx.signature)[0] + "?cluster=devnet-alpha");
+  return umi.transactions.serialize(tx); */
 
 
-
-
-
-  const transferIx = SystemProgram.transfer({
-    fromPubkey: payer,
-    toPubkey: new PublicKey("58hscQKoL5vJ8Vt4k4N81TC8HqsZSR7wBSL2agRYXwD3"),
-    lamports: 10000000, // 0.1 sol
-  });
-
-  const blockhash = await connection
-    .getLatestBlockhash({ commitment: "max" })
-    .then((res) => res.blockhash);
-  const messageV0 = new TransactionMessage({
-    payerKey: payer,
-    recentBlockhash: blockhash,
-    instructions: [transferIx],
-  }).compileToV0Message();
-  return new VersionedTransaction(messageV0); */
 }
 
 export default app;

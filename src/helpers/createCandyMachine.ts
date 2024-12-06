@@ -18,6 +18,7 @@ umi.use(signerIdentity(signer)).use(mplCore()).use(mplCandyMachine());
 
 
 (async () => {
+    console.log(umi.identity.publicKey.toString());
     console.log('Current balance is: ', (await umi.rpc.getBalance(umi.identity.publicKey)).basisPoints.toString());
     if ((await umi.rpc.getBalance(umi.identity.publicKey)).basisPoints < sol(2).basisPoints) {
         // Airdrop some SOL to the new wallet
