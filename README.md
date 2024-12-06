@@ -1,5 +1,5 @@
 # Superteam Bootcamp Feedback & NFT Minting Platform
-[Watch the video](./NFT_video.mov)
+[Watch the video](https://drive.google.com/file/d/1xSPQYsv6EhLLxK4JJrHpQ2trfU7crXiF/view?usp=drive_link)
 
 ## Project Overview
 
