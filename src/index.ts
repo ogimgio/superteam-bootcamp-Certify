@@ -67,7 +67,7 @@ async function prepareTransaction(user: PublicKey) {
   const adminSigner = createSignerFromKeypair(umi, keypair);
   umi.use(signerIdentity(createNoopSigner(publicKey(user)))).use(mplCandyMachine());
 
-  const candyMachine = publicKey("3g8Ghh9B4ZfM3THpGFoPcCtsvkWpW41JNxbJoDFpc3eh");
+  const candyMachine = publicKey("pNo5tq9gW5maP7novAEyuMz9GUwxyV8hwHsuwvGvig9");
   const candyMachineData = await fetchCandyMachine(umi, candyMachine);
 
   /// Generate the Asset KeyPair
@@ -81,7 +81,7 @@ async function prepareTransaction(user: PublicKey) {
     asset,
     owner: publicKey(user),
     mintArgs: {
-      solPayment: some({ destination: publicKey("5Rsa6WxedsNLzRKp3G7CvNbL3ohCjJ8gymaN157CzNdP") }),
+      //solPayment: some({ destination: publicKey("5Rsa6WxedsNLzRKp3G7CvNbL3ohCjJ8gymaN157CzNdP") }),
       mintLimit: some({ id: 1 })
     },
   }).buildAndSign(umi);

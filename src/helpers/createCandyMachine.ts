@@ -60,7 +60,7 @@ umi.use(signerIdentity(signer)).use(mplCore()).use(mplCandyMachine());
         }),
         guards: {
             botTax: some({ lamports: sol(0.01), lastInstruction: true }),
-            solPayment: some({ lamports: sol(0.0), destination: umi.identity.publicKey }),
+            //solPayment: some({ lamports: sol(0.0), destination: umi.identity.publicKey }),
             mintLimit: some({ id: 1, limit: 1 }),
         },
     })
