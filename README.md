@@ -1,4 +1,5 @@
 # Superteam Bootcamp Feedback & NFT Minting Platform
+<img src="./assets/readme_img_2.png" alt="Description" width="50%">
 
 ## Project Overview
 
