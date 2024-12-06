@@ -1,38 +1,111 @@
-[![Deploy with Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/zhelezkov/solana-action-templates/tree/main/cloudflare-workers-template)
+# Superteam Bootcamp Feedback & NFT Minting Platform
 
-## Setup
+## Project Overview
 
-To create a new project using this template, run:
+This project is a comprehensive Solana-based platform that combines NFT minting via Candy Machine with a user feedback system, leveraging Dialect Blinks for an interactive user experience.
 
-```sh
-npm create cloudflare@latest -- --template https://github.com/zhelezkov/solana-action-templates/cloudflare-workers-template
+## Key Features
+
+### 1. NFT Minting Candy Machine
+- Deployed using Metaplex Core Candy Machine
+- The NFT collection is made of 1k unique NFTs
+- Configurable minting rules:
+  - Mint limits (max one per wallet)
+  - Bot tax protection
+- Pre-configured with collection metadata (uploaded on arweave.net)
+- Supports devnet deployment
+
+### 2. Feedback Mechanism
+- Solana Anchor program to capture user feedback
+- Allows users to:
+  - Rate experience (1-5 stars)
+  - Submit detailed comments
+- Uses Program Derived Addresses (PDA) for secure feedback storage
+
+### 3. Dialect Blinks Integration
+- Web API for interactive NFT minting
+- Feedback collection before NFT mint
+- Supports star rating and comment submission
+- The Minted NFT is a unique certificate for the event participation with the logo of SuperTeam, a background image, and a spotify code for a techno music (Berlin vibes!)
+
+## Technical Stack
+
+- **Blockchain**: Solana
+- **NFT Framework**: Metaplex
+- **Backend**: 
+  - Rust (Solana program)
+  - Anchor
+  - TypeScript (Node.js)
+- **Deployment**: Local (but can be in Cloudflare Workers)
+- **Uploader**: Irys (for metadata and images to be deployed on arweave.net)
+
+## Project Structure
+
+```
+.
+├── src/
+│   ├── helpers/
+│   │   ├── createCandyMachine.ts   # Candy Machine setup
+│   │   ├── uploadMetadata.ts       # Metadata and image uploader
+│   │   └── test.ts                 # Minting test script
+│   └── index.ts                    # Blink API considering both feedback and minting of NFT
+├── solana_feedback_program/
+│   ├── programs/
+│   │   └── superteam-bootcamp/
+│   │       └── src/
+│   │           ├── instructions/   # Solana program instructions (Feedback)
+│   │           └── state/          # Program state definitions
+│   └── tests/                      # Test scripts
+└── worker-configuration.d.ts       # Cloudflare Workers configuration
 ```
 
-## Dev
+## Setup and Deployment
 
-To test your project, run:
+### Prerequisites
+- Solana CLI
+- Anchor
+- Rust
+- Node.js
+- Devnet SOL tokens
 
-```sh
-npm run dev
-```
+### Steps
+1. Clone the repository
+2. Install dependencies
+   ```bash
+   npm install
+   ```
+3. Configure wallet (wallet.json for Anchor program)
+4. Upload metadata and images
+   ```bash
+   npm run src/helpers/uploadMetadata.ts
+   ```
+5. Create Candy Machine
+   ```bash
+   npm run src/helpers/createCandyMachine.ts
+   ```
+6. Deploy Solana program (anchor build, anchor deploy)
+7. Start the API server (Blink)
+   ```bash
+   npm run dev
+   ```
+7. (Optional) Deploy Cloudflare Worker
 
-And then open Dialect interstitial website: https://dial.to/?action=solana-action:http://localhost:8787. It'll use your local web server, so you can develop and test almost in realtime.
+## Environment Configuration
 
-## Deploy
+- Uses Solana Devnet for testing
+- Irys protocol used for decentralized storage on arweave
+- Configurable via `wallet.json` and environment variables
 
-You can use cloudflare workers to deploy, it's free and has a generous free tier:
+## Security Features
 
-```sh
-npm run deploy
-```
+- Mint limit guards
+- Bot tax protection
+- PDA-based feedback storage
+- Minimal required permissions
 
-Read more: https://developers.cloudflare.com/workers/
+## Future Improvements
 
-## Useful links
-
-- [Dialect docs](https://docs.dialect.to/documentation/actions)
-- [Solana Actions & Blinks specification](https://solana.com/docs/advanced/actions)
-- [Dialect examples](https://github.com/dialectlabs/actions)
-- [Solana repository](https://github.com/solana-developers/solana-actions)
-- [Dialect Blinks React client SDK](https://github.com/dialectlabs/blinks)
-- [Dialect Blinks React Native client SDK](https://github.com/dialectlabs/blinks-react-native)
+- Migrate to Solana Mainnet
+- Enhanced feedback analytics (leaderboard)
+- Additional NFT minting rules
+- Improved error handling

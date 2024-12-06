@@ -117,5 +117,22 @@ const uploadMetadata = async () => {
     fs.writeFileSync(path.join(__dirname, "configlines.json"), JSON.stringify(itemUris, null, 2));
 };
 
-uploadMetadata();
+// create function tu upload Image
+const uploadImageBlink = async () => {
+    const imageFile = fs.readFileSync(path.join(__dirname, `../../assets/blink.png`));
+    const umiImageFile = createGenericFile(imageFile, `blink.png`, {
+        tags: [{ name: "Content-Type", value: "image/png" }],
+    });
+    console.log(`Uploading image blink...`);
+    const imageUri = await umi.uploader.upload([umiImageFile]).catch((err) => {
+        throw new Error(`Image upload failed for item blink: ${err}`);
+    });
+    console.log(`Image blink uploaded successfully:`, imageUri[0]);
+    const encodedUri = imageUri[0].split("/").pop();
+    console.log(encodedUri)
+    return
+}
+
+uploadImageBlink();
+//uploadMetadata();
 

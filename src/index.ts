@@ -1,5 +1,7 @@
 import { fetchCandyMachine, mintV1, mplCandyMachine } from '@metaplex-foundation/mpl-core-candy-machine';
 import { createNoopSigner, createSignerFromKeypair, generateSigner, publicKey, signerIdentity, some } from '@metaplex-foundation/umi';
+import { PublicKey } from '@solana/web3.js';
+
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
 import {
   ActionGetResponse,
@@ -7,8 +9,7 @@ import {
   ActionPostResponse,
 } from "@solana/actions";
 import {
-  Connection,
-  PublicKey
+  Connection
 } from "@solana/web3.js";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
@@ -38,7 +39,7 @@ app.get("/", (c) => {
   const response: ActionGetResponse = {
     title: "Mint your certificate for SuperTeam Bootcamp",
     description: "Blink to mint NFT certificate ",
-    icon: "https://img.fotofolio.xyz/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsolana-labs%2Ftoken-list%2Fmain%2Fassets%2Fmainnet%2FSo11111111111111111111111111111111111111112%2Flogo.png",
+    icon: "https://devnet.irys.xyz/GMQqjjNJT6p764sfKypeNyuScsFLs4WY7FsGueSoeUe9",
     label: "Mint NFT",
     "links": {
       "actions": [
@@ -93,6 +94,38 @@ app.post("/", async (c) => {
 });
 
 async function prepareTransaction(user: PublicKey) {
+
+  /* / Configure provider
+  const provider = anchor.AnchorProvider.env();
+  anchor.setProvider(provider);
+
+  // Load the deployed program
+  const program = new anchor.Program<FeedbackProgram>(
+    require("../superteam-bootcamp/target/idl/feedback_program.json"),
+    provider,
+  );
+
+  // Generate feedback PDA (Program Derived Address)
+  const [feedbackPDA] = PublicKey.findProgramAddressSync(
+    [Buffer.from("feedback"), user.toBuffer()],
+    program.programId
+  );
+
+  // Submit feedback before minting NFT
+  const txFeedback = await program.methods
+    .submitFeedback(5, "Great experience!")
+    .accounts({
+      feedback: feedbackPDA,
+      user: user,
+      systemProgram: SystemProgram.programId,
+    })
+    .rpc();
+
+  console.log("Feedback submitted! Tx:", txFeedback);
+  return */
+
+
+
   const umi = createUmi("https://api.devnet.solana.com", "confirmed");
 
   let keypair = umi.eddsa.createKeypairFromSecretKey(new Uint8Array(wallet));
