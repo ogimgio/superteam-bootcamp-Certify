@@ -40,6 +40,35 @@ app.get("/", (c) => {
     description: "Blink to mint NFT certificate ",
     icon: "https://img.fotofolio.xyz/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsolana-labs%2Ftoken-list%2Fmain%2Fassets%2Fmainnet%2FSo11111111111111111111111111111111111111112%2Flogo.png",
     label: "Mint NFT",
+    "links": {
+      "actions": [
+        {
+          "label": "Mint NFT", // button text
+          "href": "/?stars={stars}&feedback={feedback}",
+          "parameters": [
+            {
+              type: "select",
+              name: "stars", // parameter name in the `href` above
+              label: "Rate the event", // placeholder of the text input
+              required: true,
+              options: [
+                { label: "1", value: "1" },
+                { label: "2", value: "2" },
+                { label: "3", value: "3" },
+                { label: "4", value: "4" },
+                { label: "5", value: "5" },
+              ],
+            },
+            {
+              type: "textarea",
+              name: "feedback",
+              label: "Give a small feedback",
+              required: true,
+            },
+          ]
+        }
+      ]
+    }
   };
 
   return c.json(response);
@@ -47,10 +76,13 @@ app.get("/", (c) => {
 
 app.post("/", async (c) => {
   const req = await c.req.json<ActionPostRequest>();
+  console.log(c.req.query("stars"));
+  console.log(c.req.query("feedback"));
 
   const transaction = await prepareTransaction(new PublicKey(req.account));
 
   console.log('Transaction', transaction);
+
 
   const response: ActionPostResponse = {
     type: 'transaction',
